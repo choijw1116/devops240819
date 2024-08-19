@@ -47,11 +47,11 @@ def platform = project.hasProperty('platform') ? project.property('platform'):'f
 //tasks중에서 bootJar를 실행했을때 파일을 지정한것 / 파일이 게속 바뀌니까
 //bootjar했을때 생기는 파일을 적어줌
 docker {
-	if (platform == frontend){
+	if (platform == "frontend"){
 		name "wannywan/frontend:"+version
 		files "frontend/dist"
 		buildArgs(['DIST':"/"])
-		dockerfile file('Dockerfile.frontend')
+		dockerfile file('./frontend/Dockerfile')
 	}else{
 		name "wannywan/backend:" + version
 		files tasks.bootJar.outputs.files
@@ -99,7 +99,7 @@ task buildDockerFront(type:Exec, dependsOn: buildFront){
 	commandLine 'cmd', '/c', 'gradlew.bat', 'docker'
 }
 
-task dockerComposeUp(type: Exec, dependsOn: buildDockerFront){
+task dockerComposeUpFront(type: Exec, dependsOn: buildDockerFront){
 	environment 'DOCKER_IMAGE_TAG', version
 	commandLine 'docker-compose', 'up', '--build','-d'
 }
