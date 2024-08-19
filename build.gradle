@@ -1,0 +1,106 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.2'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'com.palantir.docker' version '0.36.0'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+//변수를 만들어서 사용하고 싶으면 def를 앞에 적어주고 변수명을 적어준다.
+def platform = project.hasProperty('platform') ? project.property('platform'):'frontend'
+
+
+//name -> 만들 docker 컨테이너 이름
+//빌드했을때 생기는 jar파일을 도커에 집어넣어야함
+//file -> 전달해줄 파일
+//files를 가지고 jar파일을 도커에 집어넣는다
+//tasks중에서 bootJar를 실행했을때 파일을 지정한것 / 파일이 게속 바뀌니까
+//bootjar했을때 생기는 파일을 적어줌
+docker {
+	if (platform == frontend){
+		name "wannywan/frontend:"+version
+		files "frontend/dist"
+		buildArgs(['DIST':"/"])
+		dockerfile file('Dockerfile.frontend')
+	}else{
+		name "wannywan/backend:" + version
+		files tasks.bootJar.outputs.files
+		buildArgs(['JAR_FILE': tasks.bootJar.outputs.files.singleFile.name])
+		dockerfile file('Dockerfile')//dockerfile경로를 안에 적어주면된다.
+	}
+
+}
+
+
+///////backend///////
+
+//위의 docker를 명령어로 간편하게 실행하게 만들기
+task buildDocker(type:Exec){
+	workingDir project.rootDir
+	commandLine 'gradlew.bat', 'docker', '-Pplatform=backend'
+}
+
+//컨테이너 실행까지 되게 하기
+//터미널에서 명령어 치는것과같음
+//터미널에서 docker run -d [이미지이름]
+//dependsOn -> buildDocker task에 의존하고 있기 때문에 buildDocker를 먼저하고난 다음에 실행되도록
+task dockerComposeUp(type: Exec, dependsOn: buildDocker){
+	//이렇게 안씀
+//	commandLine 'docker', 'run', '-d', 'docker-project/test'
+	//도커compose파일을 실행
+	//--build -> 새로 빌드해라
+	// -d 백그라운드에서
+	// DOCKERIMAGETAG의 값은  version이다
+	environment 'DOCKER_IMAGE_TAG', version
+	commandLine 'docker-compose', 'up', '--build','-d'
+}
+
+//////////////////frontend
+
+task buildFront(type: Exec){
+	workingDir 'frontend'
+	commandLine 'C:\\Program Files\\nodejs\\npm.cmd', 'run', 'build'
+}
+
+
+//위의 docker를 명령어로 간편하게 실행하게 만들기
+task buildDockerFront(type:Exec, dependsOn: buildFront){
+	workingDir project.rootDir
+	commandLine 'cmd', '/c', 'gradlew.bat', 'docker'
+}
+
+task dockerComposeUp(type: Exec, dependsOn: buildDockerFront){
+	environment 'DOCKER_IMAGE_TAG', version
+	commandLine 'docker-compose', 'up', '--build','-d'
+}
+

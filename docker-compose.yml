@@ -1,0 +1,15 @@
+version: '3'
+services:
+  backend:
+    #gradlle의 변수를 가져다 쓸 수가 없음
+    #버전이 같아야하니까 ${}를 사용
+    #${}안의 내용을 전달해줘야함
+    image: wannywan/backend:${DOCKER_IMAGE_TAG}
+    ports:
+      #외부포트 : 내부포트
+      - "8080:8080"
+
+  frontend:
+    image: wannywan/frontend:${DOCKER_IMAGE_TAG}
+    ports:
+      - "80:80"
