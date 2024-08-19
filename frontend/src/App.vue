@@ -1,6 +1,6 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png">
-  바꾼다4444
+  바꾼다5
 </template>
 
 <script>

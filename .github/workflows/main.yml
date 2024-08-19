@@ -45,10 +45,10 @@ jobs:
       - name: restart frontend container
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: 192.168.152.3
+          host: 175.197.41.193
           username: test
           key: ${{ secrets.SSH_KEY }}
-          port: 22
+          port: 8122
           script: |
             kubectl apply -f - <<EOF
             apiVersion: v1
@@ -100,10 +100,10 @@ jobs:
       - name: restart backend container
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: 192.168.152.3
+          host: 175.197.41.193
           username: test
           key: ${{ secrets.SSH_KEY }}
-          port: 22
+          port: 8122
           script: |
             kubectl apply -f - <<EOF
             apiVersion: v1
