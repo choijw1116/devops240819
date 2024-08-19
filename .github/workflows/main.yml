@@ -34,14 +34,13 @@ jobs:
         uses: docker/login-action@v1
         with:
           username: ${{secrets.DOCKERHUB_USERNAME}}
-          password: ${{secrets.DOCKERHUB_TOKEN}}
+          password: ${{secrets.DOCKERHUB_PASSWORD}}
 
       - name: push
         uses: docker/build-push-action@v6
         with:
           push: true
           tags: wannywan/frontend:1.1
-
   backend-deploy:
     if: github.ref == 'refs/heads/backend'
     name: Deploy to K8S
@@ -71,7 +70,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           username: ${{secrets.DOCKERHUB_USERNAME}}
-          password: ${{secrets.DOCKERHUB_TOKEN}}
+          password: ${{secrets.DOCKERHUB_PASSWORD}}
 
       - name: push
         uses: docker/build-push-action@v6
