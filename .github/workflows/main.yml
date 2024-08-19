@@ -48,6 +48,7 @@ jobs:
           host: 175.197.41.193
           username: test
           key: ${{ secrets.SSH_KEY }}
+          password: qwer1234
           port: 8122
           script: |
             kubectl apply -f - <<EOF
@@ -103,6 +104,7 @@ jobs:
           host: 175.197.41.193
           username: test
           key: ${{ secrets.SSH_KEY }}
+          password: qwer1234
           port: 8122
           script: |
             kubectl apply -f - <<EOF
