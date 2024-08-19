@@ -41,6 +41,25 @@ jobs:
         with:
           push: true
           tags: wannywan/frontend:1.1
+
+      - name: restart frontend container
+        uses: wannywan/ssh-action@v1.0.3
+        with:
+          host: 192.168.152.3
+          username: test
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            kubectl apply -f - <<EOF
+            apiVersion: v1
+            kind: Pod
+            metadata:
+              name: frontend
+            spec:
+              containers:
+                - name: frontend
+                  image: wannywan/frontend:1.1
+            EOF
   backend-deploy:
     if: github.ref == 'refs/heads/backend'
     name: Deploy to K8S
@@ -77,3 +96,23 @@ jobs:
         with:
           push: true
           tags: wannywan/backend:1.1
+
+      - name: restart backend container
+        uses: wannywan/ssh-action@v1.0.3
+        with:
+          host: 192.168.152.3
+          username: test
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            kubectl apply -f - <<EOF
+            apiVersion: v1
+            kind: Pod
+            metadata:
+              name: backend
+            spec:
+              containers:
+                - name: backend
+                  image: wannywan/backend:1.1
+            EOF
+
